@@ -14,7 +14,7 @@ logging.getLogger('govle').setLevel(logging.DEBUG)
 async def main(device_name: str, operation: str, brightness: int, color: tuple):
 
     if operation == "discover":
-        await govle.Govle.test(devices[device_name])
+        await govle.Govle.discover()
         return
 
     async with govle.Govle(devices[device_name]) as gle:
