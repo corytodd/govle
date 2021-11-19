@@ -97,7 +97,7 @@ class Le(object):
             self.__is_keep_alive_running = True
             loop = asyncio.get_event_loop()
             self.__consumers = [
-                loop.create_task(self.__keep_alive()),
+                # loop.create_task(self.__keep_alive()),
                 loop.create_task(self.__transmit_worker())
             ]
 
