@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import asyncio
 import sys
 from govle import govle
 from govle.logging import logger, logging
@@ -10,9 +11,13 @@ from config import *
 logging.getLogger('govle').setLevel(logging.DEBUG)
 
 
-def main(device_name: str, operation: str, brightness: int, color: tuple):
+async def main(device_name: str, operation: str, brightness: int, color: tuple):
 
-    with govle.Govle(devices[device_name]) as gle:
+    if operation == "discover":
+        await govle.Govle.test(devices[device_name])
+        return
+
+    async with govle.Govle(devices[device_name]) as gle:
         if operation == "on":
             gle.set_power(True)
         elif operation == "off":
@@ -34,7 +39,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("description='govle LED strip tool'")
     parser.add_argument("device", help="Which device to control", choices=devices.keys())
 
-    operation_choices = ("on", "off", "gradient-on", "gradient-off", "color", "brightness", "slide")
+    operation_choices = ("on", "off", "gradient-on", "gradient-off", "color", "brightness", "slide", "discover")
     parser.add_argument('-o', "--operation", help="Operation to perform", choices=operation_choices, default="on")
 
     parser.add_argument('-l', "--level", help="Brightness level, 0-255", type=int)
@@ -46,4 +51,4 @@ if __name__ == "__main__":
     elif args.operation == "color" and args.color is None:
         parser.error("color operation requires --color parameter")
 
-    main(args.device, args.operation, args.level, args.color)
+    asyncio.run(main(args.device, args.operation, args.level, args.color))

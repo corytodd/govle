@@ -5,8 +5,9 @@
 import logging
 import sys
 
-# Silence pygatt logging
-logging.getLogger('pygatt').setLevel(logging.ERROR)
+# Silence logging
+logging.getLogger('asyncio').setLevel(logging.ERROR)
+logging.getLogger('bleak').setLevel(logging.ERROR)
 
 class FancyLogFormatter(logging.Formatter):
     light_grey = "\x1b[37m"
