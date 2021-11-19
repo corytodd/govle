@@ -13,6 +13,7 @@ H6127_PROTOCOL_MAP = {
     "limits" : {
         "gradient" : { "min": 0x14, "max": 0xFE},
         "color" : { "min": 0x00, "max": 0xFF},
+        "brightness" : { "min": 0x14, "max": 0xFE},
         "segment" : { "min": 0x00, "max": 0xFF},
     },
     "constants" : {True: 0x01, False: 0x00},
