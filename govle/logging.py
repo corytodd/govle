@@ -16,7 +16,7 @@ class FancyLogFormatter(logging.Formatter):
     red = "\x1b[31m"
     underline_red = "\x1b[31;21m"
     reset = "\x1b[0m"
-    format = '[%(asctime)s] [%(threadName)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s'
+    format = '[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s'
 
     FORMATS = {
         logging.DEBUG: light_grey + format + reset,
@@ -39,7 +39,7 @@ handlers = [file_handler, stdout_handler]
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format='[%(asctime)s] [%(threadName)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+    format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
     handlers=handlers
 )
 
