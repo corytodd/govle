@@ -68,6 +68,10 @@ class Govle(object):
 
             await asyncio.sleep(hold)
 
+    async def diy(self):
+        for packet in gov.Gov().make_diys():
+            await self.le.write(packet)
+
     @staticmethod
     async def discover():
         """Discover and print all BLE devices in range"""
