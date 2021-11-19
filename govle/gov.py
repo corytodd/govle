@@ -2,10 +2,12 @@
 @file gov.py
 @brief Implements Govee BLE packet protocol
 """
-
 import datetime
 
-PROTOCOL_MAP = {
+GOVLE_SERVICE = "00010203-0405-0607-0809-0a0b0c0d1910"
+GOVLE_CHARACTERISTIC = "00010203-0405-0607-0809-0a0b0c0d2b11"
+
+H6127_PROTOCOL_MAP = {
     "indicator": 0x33,
     "arg_start": 0x01,
     "limits" : {
@@ -24,13 +26,18 @@ def clamp(value, limits):
     """Clamps value to range [minimum, maximum]"""
     return min(limits["max"], max(limits["min"], value))
 
+def bitmask_to_segment(u16):
+    """Converts a 16-bit field into left and right sements for Govee LED strip"""
+    return u16 & 0xFF, (u16 >> 8) & 0xFF
+
 class Gov(object):
     """Govee packet builder"""
 
     def __init__(self) -> None:
         super().__init__()
+        # timestamp is required for message queue
         self.timestamp = datetime.datetime.now()
-        self.pm = PROTOCOL_MAP
+        self.pm = H6127_PROTOCOL_MAP
         self.__payload = [
             self.pm["indicator"],
             0x00, # Command
@@ -124,9 +131,9 @@ class Gov(object):
         return str(self)
 
     def __lt__(self, other):
-        """Stupid requirement for PQ"""
+        """Comparison function uses timestamp property"""
         return self.timestamp < other.timestamp
 
     def __gt__(self, other):
-        """Stupid requirement for PQ"""
+        """Comparison function uses timestamp property"""
         return self.timestamp > other.timestamp

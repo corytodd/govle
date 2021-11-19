@@ -1,10 +1,14 @@
 from bleak import BleakClient, BleakScanner
 
-from govle import gov, le
+from govle import color, gov, le
 from govle.logging import logger
 
 
 class Govle(object):
+    """Creates a new Govee LE device
+        async Govle("<BLE::ADDRESS>") as gle:
+            gle.some_function()
+    """
 
     def __init__(self, address: str):
         self.address = address
@@ -17,43 +21,43 @@ class Govle(object):
         return self
 
     async def __aexit__(self, exc_type, exc_value, traceback):
+        _ = (exc_type, exc_value, traceback)
         await self.le.disconnet()
         logger.debug(f"closed govle [{self.address}]")
 
-    def set_power(self, on: bool) -> None:
+    async def set_power(self, on: bool) -> None:
+        """Set power to on or off state"""
         packet = gov.Gov().set_power(on)
-        self.le.write(packet)
+        await self.le.write(packet)
 
-    def set_brightness(self, level: int) -> None:
+    async def set_brightness(self, level: int) -> None:
+        """Set brightness level. Level is in range 0-255."""
         packet = gov.Gov().set_brightness(level)
-        self.le.write(packet)
+        await self.le.write(packet)
 
-    def set_gradient(self, on: bool) -> None:
+    async def set_gradient(self, on: bool) -> None:
+        """Set gradient effect to on or off"""
         packet = gov.Gov().set_gradient(on)
-        self.le.write(packet)
+        await self.le.write(packet)
 
-    def set_color(self, rgb) -> None:
+    async def set_color(self, rgb) -> None:
+        """Set RGB color. Each color is in the range 0-255."""
         packet = gov.Gov().set_manual_color(rgb)
-        self.le.write(packet)
+        await self.le.write(packet)
 
-    def slide(self) -> None:
-        white = (255,255,255)
-        red = (255,0,0)
-
-        def make_seg(x):
-            return x & 0xFF, (x >> 8) & 0xFF
-
-        self.set_gradient(True)
+    async def slide(self, background=color.WHITE, spot=color.RED) -> None:
+        """Moves one segment around the complete LED strip"""
+        await self.set_gradient(True)
 
         for bit in range(16):
             selected = 1 << bit
-            seg = make_seg(selected)
-            segment_packet = gov.Gov().set_segment_color(red, seg)
-            self.le.write(segment_packet)
+            seg = gov.bitmask_to_segment(selected)
+            segment_packet = gov.Gov().set_segment_color(spot, seg)
+            await self.le.write(segment_packet)
 
-            seg = make_seg(~selected)
-            backgroun_packet = gov.Gov().set_segment_color(white, seg)
-            self.le.write(backgroun_packet)
+            seg = gov.bitmask_to_segment(~selected)
+            backgroun_packet = gov.Gov().set_segment_color(background, seg)
+            await self.le.write(backgroun_packet)
 
     @staticmethod
     async def discover():

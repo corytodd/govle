@@ -4,7 +4,7 @@ import argparse
 import asyncio
 import sys
 from govle import govle
-from govle.logging import logger, logging
+from govle.logging import logging
 
 from config import *
 
@@ -19,19 +19,20 @@ async def main(device_name: str, operation: str, brightness: int, color: tuple):
 
     async with govle.Govle(devices[device_name]) as gle:
         if operation == "on":
-            gle.set_power(True)
+            await gle.set_power(True)
         elif operation == "off":
-            gle.set_power(False)
+            await gle.set_power(False)
         elif operation == "gradient-on":
-            gle.set_gradient(True)
+            await gle.set_gradient(True)
         elif operation == "gradient-off":
-            gle.set_gradient(False)
+            await gle.set_gradient(False)
         elif operation == "brightness":
-            gle.set_brightness(brightness)
+            await gle.set_brightness(brightness)
         elif operation == "color":
-            gle.set_color(*color)
+            await gle.set_color(*color)
         elif operation == "slide":
-            gle.slide()
+            for _ in range(100):
+                await gle.slide()
         else:
             raise RuntimeError(f"Unknown operation: {operation}")
 
