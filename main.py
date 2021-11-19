@@ -4,7 +4,7 @@ import argparse
 import asyncio
 import sys
 from govle import govle, color
-from govle.logging import logging
+from govle.logging import logger, logging
 
 from config import *
 
@@ -30,6 +30,7 @@ async def main():
     rgb = args.rgb
 
     if operation == "discover":
+        logger.info("Discovering devices...")
         await govle.Govle.discover()
         return
 
@@ -49,11 +50,22 @@ async def main():
         elif operation == "slide":
             forward = True
             back, spot = color.get_random_complementary_pair()
-            for _ in range(100):
+            for _ in range(5):
                 await gle.slide(back, spot, hold=0.1, forward=forward)
                 forward = not forward
         elif operation == "diy":
             await gle.diy()
+        elif operation == "all":
+            await gle.set_power(True)
+            await gle.set_gradient(True)
+            await gle.set_gradient(False)
+            for b in range(10, 251, 10):
+                await gle.set_brightness(b)
+            for _ in range(10):
+                await gle.set_color(color.get_random_color())
+            back, spot = color.get_random_complementary_pair()
+            await gle.slide(back, spot, hold=0.1)
+            await gle.set_power(False)
         else:
             parser.error(f"unknown operation '{operation}'")
 
