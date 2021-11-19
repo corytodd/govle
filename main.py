@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+
+import argparse
+import sys
+from govle import govle
+from govle.logging import logger, logging
+
+from config import *
+
+logging.getLogger('govle').setLevel(logging.DEBUG)
+
+
+def main(device_name: str, operation: str, brightness: int, color: tuple):
+
+    with govle.Govle(devices[device_name]) as gle:
+        if operation == "on":
+            gle.set_power(True)
+        elif operation == "off":
+            gle.set_power(False)
+        elif operation == "gradient-on":
+            gle.set_gradient(True)
+        elif operation == "gradient-off":
+            gle.set_gradient(False)
+        elif operation == "brightness":
+            gle.set_brightness(brightness)
+        elif operation == "color":
+            gle.set_color(*color)
+        elif operation == "slide":
+            gle.slide()
+        else:
+            raise RuntimeError(f"Unknown operation: {operation}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser("description='govle LED strip tool'")
+    parser.add_argument("device", help="Which device to control", choices=devices.keys())
+
+    operation_choices = ("on", "off", "gradient-on", "gradient-off", "color", "brightness", "slide")
+    parser.add_argument('-o', "--operation", help="Operation to perform", choices=operation_choices, default="on")
+
+    parser.add_argument('-l', "--level", help="Brightness level, 0-255", type=int)
+    parser.add_argument('-c', "--color", nargs=3, type=int)
+    args = parser.parse_args()
+
+    if args.operation == "brightness" and args.level is None:
+        parser.error("brightness operation requires --level parameter")
+    elif args.operation == "color" and args.color is None:
+        parser.error("color operation requires --color parameter")
+
+    main(args.device, args.operation, args.level, args.color)
