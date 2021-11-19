@@ -1,10 +1,8 @@
 import asyncio
-import queue
 import time
 
 from bleak import BleakClient
 
-from govle import gov
 from govle.logging import logger
 
 GOVEE_KEEP_ALIVE = 2 # interval in seconds
@@ -20,9 +18,11 @@ class LeNotConnectedException(Exception):
 
 class Le(object):
 
-    def __init__(self):
+    def __init__(self, packet_builder, write_characteristic):
         self.address = None
         self.__client = None
+        self.__packet_builder = packet_builder
+        self.__gatt_char = write_characteristic
 
         # In order to guarantee our keep-alive packets arive on time, they
         # are given max priority. All other messages will be processed in
@@ -39,10 +39,11 @@ class Le(object):
             """Simple retry loop returns success if tranmission succeeds"""
             retry = 0
             success = False
+            payload = packet.get_payload()
             while not success and retry < retries:
                 try:
                     retry -= 1
-                    await self.__client.write_gatt_char(gov.GOVLE_CHARACTERISTIC, packet.get_payload())
+                    await self.__client.write_gatt_char(self.__gatt_char, payload)
                     success = True
                 except Exception as ex:
                     logger.exception(ex)
@@ -78,7 +79,7 @@ class Le(object):
     async def __keep_alive(self):
         """Put a keep-alive packet in the worker Q on the specified interval"""
         if self.__is_keep_alive_running:
-            packet = gov.Gov().keep_alive()
+            packet = self.__packet_builder.keep_alive()
             await self.__work_q.put((GOVLE_PRIORITY_MAX, packet))
 
     @property
@@ -97,7 +98,7 @@ class Le(object):
             self.__is_keep_alive_running = True
             loop = asyncio.get_event_loop()
             self.__consumers = [
-                # loop.create_task(self.__keep_alive()),
+                loop.create_task(self.__keep_alive()),
                 loop.create_task(self.__transmit_worker())
             ]
 
@@ -117,8 +118,8 @@ class Le(object):
         if self.is_connected:
             await self.__client.disconnect()
             logger.debug("le worker queue/thread stopped")
-        logger.debug(f"le shutdown complete: unprocessed items: {self.__work_q.qsize()}")
+        logger.debug(f"le shutdown complete with {self.__work_q.qsize()} unprocessed packets")
 
-    async def write(self, message) -> None:
+    async def write(self, message, priority=GOVLE_PRIORITY_MED) -> None:
         """Put message in the transmit q"""
-        await self.__work_q.put((GOVLE_PRIORITY_MED, message))
+        await self.__work_q.put((priority, message))
