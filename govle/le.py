@@ -80,7 +80,7 @@ class Le(object):
         """Put a keep-alive packet in the worker Q on the specified interval"""
         if self.__is_keep_alive_running:
             packet = self.__packet_builder.keep_alive()
-            await self.__work_q.put((GOVLE_PRIORITY_MAX, packet))
+            await self.__work_q.put((GOVLE_PRIORITY_MAX+1, packet))
 
     @property
     def is_connected(self):

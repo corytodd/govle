@@ -57,6 +57,7 @@ class GovPacket(object):
         """Manually specify a complete packet"""
         self.__payload = full_packet
         assert len(self.__payload) == self.pm["packet_length"], "Incorrect payload size"
+        return self
 
     def get_payload(self) -> bytearray:
         """Returns CRC'd payload as a bytearray"""
@@ -170,6 +171,23 @@ class Gov(object):
         """Builds a sample set of DIY packets
             :return list(GovPacket)
         """
+
+        def R(x):
+            return (x >> 16) & 0xFF
+        def G(x):
+            return (x >> 8) & 0xFF
+        def B(x):
+            return x & 0xFF
+
+        c1 = 0x440DFA
+        c2 = 0x0B13DE
+        c3 = 0x004BF5
+        c4 = 0x0DD1FA
+        c5 = c1
+        c6 = c2
+        c7 = c3
+        c8 = c4
+
         return [
             GovPacket(self.pm).pack([0xAA, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]), # Keep Alive
@@ -181,24 +199,24 @@ class Gov(object):
 
             GovPacket(self.pm).pack([0xa1, 0x02,
              0x01, # Packet number
-             0x0a, # Name?
-             0x02, # Style: Fade, Jumping, Flicker, Marquee, Music
-             0x01, # Mode
-             0x32, # Speed: 0x00-0x64
+             0x03, # Name?
+             0x03, # Style: Fade, Jumping, Flicker, Marquee, Music
+             0x02, # Mode
+             0x64, # Speed: 0x00-0x64
              0x18, # Padding
-             0xff, 0x00, 0x00, # RGB
-             0xff, 0x00, 0x00, # RGB
-             0xff, 0x00, 0x00, # RGB
-             0xff, 0xff,       # RG
+             R(c1), G(c1), B(c1), # RGB
+             R(c2), G(c2), B(c2), # RGB
+             R(c3), G(c3), B(c3), # RGB
+             R(c4), G(c4),       # RG
              0x00              # XOR
             ]), # Data
             GovPacket(self.pm).pack([0xa1, 0x02,
              0x02, # Packet number
-             0xff, # B
-             0x00, 0x00, 0xff, # RGB
-             0x00, 0x00, 0xff, # RGB
-             0x00, 0x00, 0xff, # RGB
-             0x00, 0x00, 0xff, # RGB
+             B(c4), # B
+             R(c5), G(c5), B(c5), # RGB
+             R(c6), G(c6), B(c6), # RGB
+             R(c7), G(c7), B(c7), # RGB
+             R(c8), G(c8), B(c8), # RGB
              0x00, 0x00, 0x00, # Padding
              0x00              # XOR
             ]), # Data

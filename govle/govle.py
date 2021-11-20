@@ -71,7 +71,7 @@ class Govle(object):
 
     async def diy(self):
         for packet in self.gov.make_diys():
-            await self.le.write(packet)
+            await self.le.write(packet, le.GOVLE_PRIORITY_MAX)
 
     @staticmethod
     async def discover():
