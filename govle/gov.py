@@ -207,8 +207,8 @@ class Gov(object):
              R(c1), G(c1), B(c1), # RGB
              R(c2), G(c2), B(c2), # RGB
              R(c3), G(c3), B(c3), # RGB
-             R(c4), G(c4),       # RG
-             0x00              # XOR
+             R(c4), G(c4),        # RG
+             0x00                 # XOR
             ]), # Data
             GovPacket(self.pm).pack([0xa1, 0x02,
              0x02, # Packet number
@@ -217,8 +217,8 @@ class Gov(object):
              R(c6), G(c6), B(c6), # RGB
              R(c7), G(c7), B(c7), # RGB
              R(c8), G(c8), B(c8), # RGB
-             0x00, 0x00, 0x00, # Padding
-             0x00              # XOR
+             0x00, 0x00, 0x00,    # Padding
+             0x00                 # XOR
             ]), # Data
 
             GovPacket(self.pm).pack([0xa1, 0x02, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
