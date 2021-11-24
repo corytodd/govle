@@ -9,6 +9,16 @@ def to_hex(rgb):
     """Make hex string from color tuple"""
     return "0x" + "".join([f"{b:02X}" for b in rgb])
 
+def from_string(hex_color):
+    """Create RGB tuple from hex string"""
+    hex_color = hex_color.replace("#","")
+    rgb = (
+        int(hex_color[0:2], 16),
+        int(hex_color[2:4], 16),
+        int(hex_color[4:6], 16),
+    )
+    return rgb
+
 def get_random_color():
     """Generate a random RGB color"""
     rgb = random.sample(range(0, 255), 3)

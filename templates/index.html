@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Basic Controls {% endblock %}</h1>
+
+    <div class="row center-align">
+        <a class="waves-effect waves-light btn-large" id="govle_btn_on">On</a>
+        <a class="waves-effect waves-light btn-large" id="govle_btn_off">Off</a>
+    </div>
+
+    <div class="row center-align">
+        <div id="govle_color_basic"></div>
+    </div>
+    <div class="row center-align">
+        <a class="waves-effect waves-light btn-large" id="govle_btn_color">Apply</a>
+    </div>
+
+{% endblock %}
